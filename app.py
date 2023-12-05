@@ -2,17 +2,18 @@
 
 #imported streamlit library for making our web  app
 import streamlit as st  
-# imported preprocessor file
-import preprocessor,helper
+# imported preprocessor file and helper file
+import preprocessor,helper,new
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import Counter
-# it helps to give title for our websi
+# it helps to give title for our website
 st.sidebar.title("Whatsapp Chat Analyser") 
 
 # it helps in uploading file in our website
 uploaded_file = st.sidebar.file_uploader("Choose a file")  
 if uploaded_file is not None:
+    
     bytes_data = uploaded_file.getvalue()
     #extracted data was in byte format so we are converting it into string(utf-8)
     data = bytes_data.decode('utf-8')
@@ -24,12 +25,17 @@ if uploaded_file is not None:
     # we are extracting unqiue user from user column from our dataframe and saving in into another list
     user_list = df['user'].unique().tolist()
     
-    #we are removing group_notification from our list
+    
+    #we are removing group_notification from our list if it is present
     s = 'group_notification'
     if s in user_list:
         user_list.remove('group_notification')
     user_list.sort()
+    
+    
+    #it help in showing overall in top of list
     user_list.insert(0,'Overall')
+    
     
     # we made drop down menu for every single person in our list
     selected_user = st.sidebar.selectbox("Show analysis wrt",user_list)
@@ -50,8 +56,9 @@ if uploaded_file is not None:
         with col4:
             st.header('Links Shared')
             st.title(links)
-        #timeline
+            
         
+        #Monthly timeline
         st.title("Monthly Timeline")
         timeline = helper.monthly_timeline(selected_user,df)
         fig,ax = plt.subplots()
@@ -59,7 +66,8 @@ if uploaded_file is not None:
         plt.xticks(rotation='vertical')
         st.pyplot(fig)
 
-        # daily timeline
+        
+        # Daily timeline
         st.title("Daily Timeline")
         daily_timeline = helper.daily_timeline(selected_user, df)
         fig, ax = plt.subplots()
@@ -67,7 +75,8 @@ if uploaded_file is not None:
         plt.xticks(rotation='vertical')
         st.pyplot(fig)
         
-        # activity map
+        
+        # Activity map
         st.title('Activity Map')
         col1,col2 = st.columns(2)
 
@@ -93,6 +102,7 @@ if uploaded_file is not None:
         ax = sns.heatmap(user_heatmap)
         st.pyplot(fig)
         
+        
         #finding busy user
         if selected_user == 'Overall':
             st.title('Most Busy User')
@@ -108,12 +118,17 @@ if uploaded_file is not None:
                 st.pyplot(fig)
             with col2:
                 st.dataframe(newdf)
+        
+        
+        #Word Cloud       
         st.title("Word Cloud")
         df_wc = helper.create_word_cloud(selected_user,df)
         fig, ax = plt.subplots()
         ax.imshow(df_wc)
         st.pyplot(fig)
         
+        
+        #Most Common Word
         st.title("Most Common Words")
         col1, col2 = st.columns([1,2])
         most_common_df=helper.most_common_word(selected_user,df)
@@ -128,7 +143,7 @@ if uploaded_file is not None:
 
     
     
-        #emoji
+        #Most Used Emoji
         emoji_df=helper.emoji_helper(selected_user,df)
         st.title("Emoji Analysis")
         
@@ -140,3 +155,10 @@ if uploaded_file is not None:
             fig,ax = plt.subplots()
             ax.pie(emoji_df[1].head(),labels=emoji_df[0].head(),autopct="%0.2f")
             st.pyplot(fig)
+
+        if selected_user == 'Overall':
+            #Sentiment Analysis
+            senti = new.solve(bytes_data)
+            st.title("Sentiment Analysis")
+            st.title(senti)
+             

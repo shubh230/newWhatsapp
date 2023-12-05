@@ -1,16 +1,19 @@
-import re
+# we are importing regular expression
+import re 
 import pandas as pd
 def preprocess(data):
-    
+    #we are making regular expression for our message
     pattern = '\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s-\s' 
-    
+    #we are extracting message from our data
     messages = re.split(pattern,data)[1:]
-    
+    #we are extracting date from our data
     dates = re.findall(pattern,data)
-    
+    #we are making dataframe of message and dates
     df = pd.DataFrame({'user_message':messages,'message_date':dates})
+    #we area making message_date coloumn and extracting date from our dateframe
     df['message_date']=pd.to_datetime(df['message_date'],format='%d/%m/%Y, %H:%M - ')
     df.rename(columns={'message_date':'date'},inplace=True)
+    #we are extacting user and message from user message and saving it into two coloumns
     users = []
     messages = []
     for message in df['user_message']:

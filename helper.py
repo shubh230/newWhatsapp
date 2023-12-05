@@ -12,13 +12,13 @@ def fetch_stats(selected_user,df):
         df = df[df['user']==selected_user]
         
     num_message = df.shape[0]
-    
+    #we are spliting message on the space and couting words in it
     words = []
     for message in df['message']:
         words.extend(message.split())
     
     num_media_message = df[df['message'] == '<Media omitted>\n'].shape[0]
-    
+    #we are finding links in message
     links = []
     for message in df['message']:
         links.extend(extract.find_urls(message))
@@ -26,9 +26,11 @@ def fetch_stats(selected_user,df):
     return num_message,len(words),num_media_message,len(links)
 
 def most_busy_user(df):
+    #we are finding group notification and droping it to show only valid busy user
     i=df[(df.user=='group_notification')].index
     df = df.drop(i)
     x = df['user'].value_counts().head()
+    #we are converting it into percentage value
     y = round((df['user'].value_counts()/df.shape[0])*100,2).reset_index()
     y = y.rename(columns={'index':'name','user':'percent'})
     return x,y
